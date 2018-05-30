@@ -1,9 +1,126 @@
 <html>
     <head>
         <title>Teste</title>
+        <link rel="stylesheet" href="public/materialize/css/materialize.min.css">
+        <script src="public/materialize/js/materialize.min.js"></script>
+        <script src="public/js/jquery-3.3.1.min.js"></script>
+
     </head>
     <body>
-        <h1>Teste</h1>
-        <span>Funcionou!</span>
+        <div id="app">
+        </div>
+
+        <script>
+            var timerAtual = 15;
+            var app = document.getElementById('app');
+            $(document).ready(function() {
+                var divRowContador = document.createElement('div');
+                divRowContador.setAttribute('class', 'row');
+                app.appendChild(divRowContador);
+
+                var divContador = document.createElement('div');
+                divContador.id = 'div_contador';
+                divContador.setAttribute('class', 'col s2');
+                divRowContador.appendChild(divContador);
+
+                var divBotaoContador = document.createElement('div');
+                divBotaoContador.setAttribute('class', 'col s2');
+                divRowContador.appendChild(divBotaoContador);
+
+                var botaoContador = document.createElement('button');
+                botaoContador.innerHTML = 'Parar';
+                botaoContador.id = 'btn-contador';
+                botaoContador.setAttribute('class','btn btn-contador');
+                botaoContador.setAttribute('data-tipo', 'parar');
+                divBotaoContador.appendChild(botaoContador);
+
+                app.appendChild(criarBase());
+                
+                
+                var intervalo = setInterval(verificarNecessidadeDeCarregarResultados, 1000);
+
+                $(document).on('click', '.btn-contador', function() {
+                    var btnContador = document.getElementById('btn-contador');
+                    var tipoContador = btnContador.getAttribute('data-tipo');
+                    if (tipoContador == 'parar') {
+                        btnContador.setAttribute('data-tipo', 'continuar');
+                        btnContador.innerHTML = 'Continuar';
+                    } else {
+                        btnContador.setAttribute('data-tipo', 'parar');
+                        btnContador.innerHTML = 'Parar';
+                    }
+                });
+            });
+
+            function criarBase() {
+                var divContent = document.createElement('div');
+                divContent.id='container';
+                divContent.setAttribute('class', 'container');
+                return divContent;
+            }
+
+            function carregarResultados() {
+                var divContainer = document.getElementById('container');
+                //console.log('teste');
+                $.ajax({
+                    url: '/api/jogos',
+                    method: 'GET',
+                    beforeSend: function() {
+                        divContainer.innerHTML = '';
+                    },
+                    success: function(data) {
+                        for (let i = 0; i < data.length; i++) {
+                            const jogador = data[i];
+                            //console.log(jogador.NomeJogador);
+                            for (let j = 0; j < jogador.Resultados.length; j++) {
+                                const resultado = jogador.Resultados[j];
+                                //console.log(resultado);
+                                var divRow = document.createElement('div');
+                                divRow.setAttribute('class', 'row');
+
+                                var divTimeA = document.createElement('div');
+                                divTimeA.setAttribute('class', 'col s3 right-align');
+                                divTimeA.innerHTML = resultado.TimeA;
+
+                                var divTimeB = document.createElement('div');
+                                divTimeB.setAttribute('class', 'col s3');
+                                divTimeB.innerHTML = resultado.TimeB;
+
+                                var divSeparador = document.createElement('div');
+                                divSeparador.setAttribute('class', 'col s1 center-align');
+                                divSeparador.innerHTML = 'X';
+
+                                var divGolsA = document.createElement('div');
+                                divGolsA.setAttribute('class', 'col s2 center-align');
+                                divGolsA.innerHTML = resultado.GolsA;
+
+                                var divGolsB = document.createElement('div');
+                                divGolsB.setAttribute('class', 'col s2 center-align');
+                                divGolsB.innerHTML = resultado.GolsB;
+
+                                divRow.appendChild(divTimeA);
+                                divRow.appendChild(divGolsA);
+                                divRow.appendChild(divSeparador);
+                                divRow.appendChild(divGolsB);
+                                divRow.appendChild(divTimeB);
+
+                                divContainer.appendChild(divRow);
+                            }
+                            
+                        }
+                    }
+                });
+            }
+        
+            function verificarNecessidadeDeCarregarResultados() {
+                timerAtual--;
+                if (timerAtual == 0) {
+                    timerAtual = 15;
+                    carregarResultados();
+                }
+                var divContador = document.getElementById('div_contador');
+                divContador.innerHTML = timerAtual;
+            }
+        </script>
     </body>
 </html>

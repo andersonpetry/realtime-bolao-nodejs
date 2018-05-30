@@ -2,6 +2,8 @@ var express = require('express');
 var app = express();
 var path = require('path');
 
+app.use('/public', express.static(__dirname + '/public'));
+
 app.get('/jogos', function(req,res, next) {
     res.sendFile(path.join(__dirname+ '/views/index.html'));
 });
